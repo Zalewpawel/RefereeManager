@@ -1,0 +1,117 @@
+@model Sedziowanie.ViewModels.WydzialSedziowskiEditViewModel
+
+@{
+    ViewData["Title"] = "Wydział Sędziowski - Edycja";
+    var success = TempData["Success"] as string;
+    var error = TempData["Error"] as string;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!string.IsNullOrEmpty(success))
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@success
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@error
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-header">Nowa komisja</div>
+    <div class="card-body">
+        <form asp-action="AddKomisja" method="post">
+            @Html.AntiForgeryToken()
+            <div class="row g-2">
+                <div class="col-md-8">
+                    <input asp-for="NowaKomisjaNazwa" class="form-control" placeholder="Nazwa komisji" />
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">Dodaj komisję</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Dodaj członka do komisji</div>
+    <div class="card-body">
+        <form asp-action="AddCzlonek" method="post">
+            @Html.AntiForgeryToken()
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <select asp-for="KomisjaId" class="form-select" required>
+                        <option value="">-- Komisja --</option>
+                        @foreach (var k in Model.Komisje)
+                        {
+                            <option value="@k.Id">@k.Nazwa</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select asp-for="SedziaId" asp-items="Model.Sedziowie" class="form-select" required>
+                        <option value="">-- Sędzia --</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input asp-for="Funkcja" class="form-control" list="funkcjeList" placeholder="Funkcja" />
+                    <datalist id="funkcjeList">
+                        <option value="Przewodniczący"></option>
+                        <option value="Członek"></option>
+                    </datalist>
+                </div>
+                <div class="col-md-3">
+                    <input asp-for="Email" class="form-control" placeholder="Email (opcjonalnie)" />
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-success">Dodaj</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@foreach (var komisja in Model.Komisje)
+{
+    <div class="card mb-3">
+        <div class="card-header"><strong>@komisja.Nazwa</strong></div>
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0 align-middle">
+                <thead class="thead-softgray">
+                    <tr>
+                        <th>Nazwisko i imię</th>
+                        <th>Funkcja</th>
+                        <th>Email</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in komisja.Czlonkowie)
+                    {
+                        <tr>
+                            <td>@c.Sedzia.Nazwisko @c.Sedzia.Imie</td>
+                            <td>@c.Funkcja</td>
+                            <td>@c.Email</td>
+                            <td>
+                                <form asp-action="DeleteCzlonek" method="post" class="d-inline" onsubmit="return confirm('Usunąć członka komisji?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@c.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Usuń</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<a asp-action="Sklad" class="btn btn-secondary">Powrót</a>

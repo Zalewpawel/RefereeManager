@@ -1,0 +1,349 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WS POZPS</title>
+    <link rel="icon" type="image/png" href="~/zubr.png" asp-append-version="true" />
+    <link rel="shortcut icon" type="image/png" href="~/zubr.png" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Sedziowanie.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EDRHLTMFH3"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-EDRHLTMFH3');
+</script>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm custom-navbar border-bottom shadow-sm mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Start" asp-action="Index">WS POZPS</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex">
+                    @{
+                        bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+                        bool isAdmin = User.IsInRole("Admin");
+                        bool isUser = User.IsInRole("User");
+                        bool isSedzia = User.IsInRole("Sedzia");
+                    }
+                    <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+                        @if (isUser)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="meczeDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Mecze
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="meczeDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Mecz" asp-action="ListaMeczow">
+                                            Wszystkie mecze
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Mecz" asp-action="MeczeKlubu">
+                                            Mecze klubu
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Rozgrywki" asp-action="ListaRozgrywek">
+                                            Rozgrywki
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Sedzia" asp-action="ShowSedzia">Lista sędziów</a>
+                            </li>
+                        }
+
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="meczeDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Mecze
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="meczeDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Mecz" asp-action="ListaMeczowAdmin">
+                                            Wszystkie mecze
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Mecz" asp-action="Add">
+                                            Dodaj mecz
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Rozgrywki" asp-action="ListaRozgrywekAdmin">
+                                            Rozgrywki
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark"
+                                   href="#" id="sedziowieDropdown" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    Sędziowie
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="sedziowieDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Sedzia" asp-action="ShowAll">
+                                            Lista sędziów
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Sedzia" asp-action="Add">
+                                            Dodaj sędziego
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Sedzia" asp-action="Statystyki">
+                                            Statystyki
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="niedyspozycjeDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Niedyspozycje
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="niedyspozycjeDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Niedyspozycja" asp-action="AddForAdmin">
+                                            Dodaj niedyspozycję
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Niedyspozycja" asp-action="Show">
+                                            Wyświetl niedyspozycje
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isSedzia)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="meczeDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Mecze
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="meczeDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Mecz" asp-action="ListaMeczow">
+                                            Wszystkie mecze
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Mecz" asp-action="MojeMecze">
+                                            Moje mecze
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Rozgrywki" asp-action="ListaRozgrywek">
+                                            Rozgrywki
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Sedzia" asp-action="ShowSedzia">Lista sędziów</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="niedyspozycjeDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Niedyspozycje
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="niedyspozycjeDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Niedyspozycja" asp-action="AddForSedzia">
+                                            Zgłoś niedyspozycję
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Niedyspozycja" asp-action="MojeNiedyspozycje">
+                                            Moje niedyspozycje
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                        }
+
+                        @if (!isAuthenticated)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="meczeDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Mecze
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="meczeDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Mecz" asp-action="ListaMeczow">
+                                            Wszystkie mecze
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area=""
+                                           asp-controller="Rozgrywki" asp-action="ListaRozgrywek">
+                                            Rozgrywki
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Sedzia" asp-action="ShowBezDanych">Lista sędziów</a>
+                            </li>
+                        }
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="wydzialDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Wydział Sędziowski
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="wydzialDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="WydzialSedziowski" asp-action="Sklad">
+                                        Skład i kontakt
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="WydzialSedziowski" asp-action="Sukcesy">
+                                        Sukcesy
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <a class="dropdown-item" href="~/REGULAMIN SĘDZIEGO POZPS.pdf" target="_blank" rel="noopener noreferrer">
+                                        Regulamin sędziego POZPS
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="~/Załącznik nr 1 do Regulaminu Sędziego POZPS.pdf" target="_blank" rel="noopener noreferrer">
+                                        Załącznik nr 1 do Regulaminu
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="konfiguracjaDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Konfiguracja
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="konfiguracjaDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Register"><i class="fas fa-user-plus me-1"></i>Zarejestruj</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="ShowUsers"><i class="fas fa-users-cog me-1"></i>Zarządzaj kontami</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Sezon" asp-action="ZarzadzanieSezonem"><i class="fas fa-calendar-alt me-1"></i>Zarządzanie sezonem</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword"><i class="fas fa-key me-1"></i>Zmień hasło</a></li>
+                                    <li><a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout"><i class="fas fa-sign-out-alt me-1"></i>Wyloguj</a></li>
+                                </ul>
+                            </li>
+                        }
+                        else if (isAuthenticated && (isUser || isSedzia))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="kontoDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Konto
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="kontoDropdown">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Account" asp-action="ChangePassword">
+                                            Zmień hasło
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Account" asp-action="Logout">
+                                            Wyloguj
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else if (!isAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Zaloguj</a>
+                            </li>
+                        }
+                    </ul>
+
+                    @if (isAuthenticated)
+                    {
+                        <span class="navbar-text text-dark ms-auto">
+                            Zalogowano jako: <strong>@User.Identity.Name</strong>
+                        </span>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - Paweł Zalewski - <a asp-area="" asp-controller="Start" asp-action="Index">Start</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.13/jquery.validate.unobtrusive.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

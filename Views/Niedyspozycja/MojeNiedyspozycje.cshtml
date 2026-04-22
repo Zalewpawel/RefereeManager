@@ -1,0 +1,58 @@
+@model IEnumerable<Sedziowanie.Models.Niedyspozycja>
+
+@{
+    ViewData["Title"] = "Moje niedyspozycje";
+    var success = TempData["Success"] as string;
+    var error = TempData["Error"] as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+    <a asp-controller="Niedyspozycja" asp-action="AddForSedzia" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus me-1"></i> Zgłoś niedyspozycję
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(success))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@success
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@error
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-bordered mb-0 text-center align-middle">
+            <thead class="thead-softgray">
+                <tr>
+                    <th>Niedyspozycja od</th>
+                    <th>Niedyspozycja do</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="2" class="text-muted py-3">Brak niedyspozycji.</td></tr>
+                }
+                else
+                {
+                    foreach (var n in Model)
+                    {
+                        <tr>
+                            <td>@n.Poczatek.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@n.Koniec.ToString("dd.MM.yyyy HH:mm")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

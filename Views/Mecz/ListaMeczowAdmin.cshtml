@@ -1,0 +1,230 @@
+﻿@model IEnumerable<Sedziowanie.Models.Mecz>
+
+@{
+    ViewData["Title"] = "Lista meczów (admin)";
+    Func<string?, string> cleanAndEncode = s => System.Net.WebUtility.HtmlEncode((s ?? string.Empty).Replace("<br/>", " ").Replace("<br>", " ").Replace("<br />", " ").Trim());
+    Func<string?, string> clean = s => (s ?? string.Empty).Replace("<br/>", " ").Replace("<br>", " ").Replace("<br />", " ").Trim();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">Lista meczów (admin)</h2>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-controller="Sezon" asp-action="ExportWszystkieMecze" class="btn btn-success btn-sm">
+            <i class="fas fa-file-excel me-1"></i> Eksport do Excela
+        </a>
+        <a asp-controller="Sezon" asp-action="ExportPelnySezon" class="btn btn-outline-success btn-sm">
+            <i class="fas fa-file-excel me-1"></i> Pełny sezon
+        </a>
+    </div>
+</div>
+
+<div class="table-responsive matches-wide matches-wide-admin">
+<table class="table table-bordered table-striped align-middle table-left admin-matches-table">
+    <thead class="table-light">
+        <tr>
+            <th>Nr</th>
+            <th class="match-date-col">Data</th>
+            <th>Rozgrywki</th>
+            <th>Gospodarz</th>
+            <th>Gość</th>
+            <th>Sędzia<br/>I</th>
+            <th>Sędzia<br/>II</th>
+            <th>Sędzia<br/>Sekretarz</th>
+            <th>Sędzia<br/>Liniowy I</th>
+            <th>Sędzia<br/>Liniowy II</th>
+            <th>Sędzia<br/>Główny</th>
+            <th class="clock-col text-center" title="Udostępnij godzinę">🕒</th>
+            <th class="text-center">Akcje</th>
+        </tr>
+    </thead>
+
+    @foreach (var dayGroup in Model.GroupBy(m => m.Data.Date).OrderBy(g => g.Key))
+    {
+        <tbody>
+            <tr class="date-header" data-match-date="@dayGroup.Key.ToString("yyyy-MM-dd")">
+                <td colspan="13">@dayGroup.Key.ToString("dd.MM.yyyy")</td>
+            </tr>
+        </tbody>
+
+        var dayItems = dayGroup
+            .Where(m => !string.IsNullOrWhiteSpace(m.Turniej))
+            .GroupBy(m => m.Turniej)
+            .Select(g => new { Time = g.Min(m => m.Data), IsTurniej = true, Matches = g.OrderBy(m => m.Data).ToList() })
+            .Concat(
+                dayGroup
+                    .Where(m => string.IsNullOrWhiteSpace(m.Turniej))
+                    .Select(m => new { Time = m.Data, IsTurniej = false, Matches = new List<Sedziowanie.Models.Mecz> { m } })
+            )
+            .OrderBy(x => x.Time)
+            .ToList();
+
+        foreach (var item in dayItems)
+        {
+            var matches = item.Matches;
+            bool isTurniejGroup = item.IsTurniej && matches.Count > 1;
+
+            if (isTurniejGroup)
+            {
+                <tbody class="turniej-group">
+                    @for (int i = 0; i < matches.Count; i++)
+                    {
+                        var mecz = matches[i];
+                        <tr>
+                            <td>
+                                <a asp-action="Informacje" asp-route-id="@mecz.Id" class="btn btn-link p-0 d-inline-flex flex-column align-items-start text-decoration-none">
+                                    <span class="mecz-number">@mecz.NumerMeczu</span>
+                                    @if (!string.IsNullOrWhiteSpace(mecz.Turniej))
+                                    {
+                                        <small class="mecz-turniej" title="@clean(mecz.Turniej)">@clean(mecz.Turniej)</small>
+                                    }
+                                </a>
+                            </td>
+                            <td class="match-date-col">
+                                <div>@mecz.Data.ToString("dd.MM.yyyy")</div>
+                                <div class="match-time">@mecz.Data.ToString("HH:mm")</div>
+                            </td>
+
+                            <td>@(mecz.Rozgrywki?.Nazwa ?? (mecz.RozgrywkiId != 0 ? $"ID: {mecz.RozgrywkiId}" : "-"))</td>
+                            <td class="team-col"><span class="team-cell-text" title="@(mecz.Gospodarz ?? "-")">@Html.Raw(!string.IsNullOrWhiteSpace(mecz.Gospodarz) ? cleanAndEncode(mecz.Gospodarz) : "-")</span></td>
+                            <td class="team-col"><span class="team-cell-text" title="@(mecz.Gosc ?? "-")">@Html.Raw(!string.IsNullOrWhiteSpace(mecz.Gosc) ? cleanAndEncode(mecz.Gosc) : "-")</span></td>
+
+                            <td>@Html.Raw(mecz.SedziaI != null ? $"{cleanAndEncode(mecz.SedziaI.Imie)}<br/>{cleanAndEncode(mecz.SedziaI.Nazwisko)}" : (mecz.SedziaIId.HasValue ? $"ID: {mecz.SedziaIId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaII != null ? $"{cleanAndEncode(mecz.SedziaII.Imie)}<br/>{cleanAndEncode(mecz.SedziaII.Nazwisko)}" : (mecz.SedziaIIId.HasValue ? $"ID: {mecz.SedziaIIId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaSekretarz != null ? $"{cleanAndEncode(mecz.SedziaSekretarz.Imie)}<br/>{cleanAndEncode(mecz.SedziaSekretarz.Nazwisko)}" : (mecz.SedziaSekretarzId.HasValue ? $"ID: {mecz.SedziaSekretarzId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaLiniowyI != null ? $"{cleanAndEncode(mecz.SedziaLiniowyI.Imie)}<br/>{cleanAndEncode(mecz.SedziaLiniowyI.Nazwisko)}" : (mecz.SedziaLiniowyIId.HasValue ? $"ID: {mecz.SedziaLiniowyIId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaLiniowyII != null ? $"{cleanAndEncode(mecz.SedziaLiniowyII.Imie)}<br/>{cleanAndEncode(mecz.SedziaLiniowyII.Nazwisko)}" : (mecz.SedziaLiniowyIIId.HasValue ? $"ID: {mecz.SedziaLiniowyIIId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaGlowny != null ? $"{cleanAndEncode(mecz.SedziaGlowny.Imie)}<br/>{cleanAndEncode(mecz.SedziaGlowny.Nazwisko)}" : (mecz.SedziaGlownyId.HasValue ? $"ID: {mecz.SedziaGlownyId}" : "-"))</td>
+
+                            <td>
+                                <form asp-action="ToggleUdostepnijGodzine" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@mecz.Id" />
+                                    <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                    <div class="form-check d-flex align-items-center justify-content-center">
+                                        <input class="form-check-input" type="checkbox" name="value" value="true"
+                                               @(mecz.UdostepnijGodzine ? "checked" : "")
+                                               onchange="this.form.submit()" id="share_@mecz.Id" />
+                                        <input type="hidden" name="value" value="false" />
+                                    </div>
+                                </form>
+                            </td>
+
+                            <td class="text-center text-nowrap">
+                                <a asp-action="Edit"
+                                   asp-route-id="@mecz.Id"
+                                   class="btn btn-sm btn-outline-secondary me-1"
+                                   title="Edytuj">✏️</a>
+
+                                <form asp-action="DeleteConfirmed"
+                                      asp-route-id="@mecz.Id"
+                                      method="post"
+                                      class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Usuń"
+                                            onclick="return confirm('Na pewno usunąć mecz @mecz.NumerMeczu?');">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    @foreach (var mecz in matches)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Informacje" asp-route-id="@mecz.Id" class="btn btn-link p-0 d-inline-flex flex-column align-items-start text-decoration-none">
+                                    <span class="mecz-number">@mecz.NumerMeczu</span>
+                                    @if (!string.IsNullOrWhiteSpace(mecz.Turniej))
+                                    {
+                                        <small class="mecz-turniej" title="@clean(mecz.Turniej)">@clean(mecz.Turniej)</small>
+                                    }
+                                </a>
+                            </td>
+                            <td class="match-date-col">
+                                <div>@mecz.Data.ToString("dd.MM.yyyy")</div>
+                                <div class="match-time">@mecz.Data.ToString("HH:mm")</div>
+                            </td>
+
+                            <td>@(mecz.Rozgrywki?.Nazwa ?? (mecz.RozgrywkiId != 0 ? $"ID: {mecz.RozgrywkiId}" : "-"))</td>
+                            <td class="team-col"><span class="team-cell-text" title="@(mecz.Gospodarz ?? "-")">@Html.Raw(!string.IsNullOrWhiteSpace(mecz.Gospodarz) ? cleanAndEncode(mecz.Gospodarz) : "-")</span></td>
+                            <td class="team-col"><span class="team-cell-text" title="@(mecz.Gosc ?? "-")">@Html.Raw(!string.IsNullOrWhiteSpace(mecz.Gosc) ? cleanAndEncode(mecz.Gosc) : "-")</span></td>
+
+                            <td>@Html.Raw(mecz.SedziaI != null ? $"{cleanAndEncode(mecz.SedziaI.Imie)}<br/>{cleanAndEncode(mecz.SedziaI.Nazwisko)}" : (mecz.SedziaIId.HasValue ? $"ID: {mecz.SedziaIId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaII != null ? $"{cleanAndEncode(mecz.SedziaII.Imie)}<br/>{cleanAndEncode(mecz.SedziaII.Nazwisko)}" : (mecz.SedziaIIId.HasValue ? $"ID: {mecz.SedziaIIId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaSekretarz != null ? $"{cleanAndEncode(mecz.SedziaSekretarz.Imie)}<br/>{cleanAndEncode(mecz.SedziaSekretarz.Nazwisko)}" : (mecz.SedziaSekretarzId.HasValue ? $"ID: {mecz.SedziaSekretarzId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaLiniowyI != null ? $"{cleanAndEncode(mecz.SedziaLiniowyI.Imie)}<br/>{cleanAndEncode(mecz.SedziaLiniowyI.Nazwisko)}" : (mecz.SedziaLiniowyIId.HasValue ? $"ID: {mecz.SedziaLiniowyIId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaLiniowyII != null ? $"{cleanAndEncode(mecz.SedziaLiniowyII.Imie)}<br/>{cleanAndEncode(mecz.SedziaLiniowyII.Nazwisko)}" : (mecz.SedziaLiniowyIIId.HasValue ? $"ID: {mecz.SedziaLiniowyIIId}" : "-"))</td>
+                            <td>@Html.Raw(mecz.SedziaGlowny != null ? $"{cleanAndEncode(mecz.SedziaGlowny.Imie)}<br/>{cleanAndEncode(mecz.SedziaGlowny.Nazwisko)}" : (mecz.SedziaGlownyId.HasValue ? $"ID: {mecz.SedziaGlownyId}" : "-"))</td>
+
+                            <td>
+                                <form asp-action="ToggleUdostepnijGodzine" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@mecz.Id" />
+                                    <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                    <div class="form-check d-flex align-items-center justify-content-center">
+                                        <input class="form-check-input" type="checkbox" name="value" value="true"
+                                               @(mecz.UdostepnijGodzine ? "checked" : "")
+                                               onchange="this.form.submit()" id="share_@mecz.Id" />
+                                        <input type="hidden" name="value" value="false" />
+                                    </div>
+                                </form>
+                            </td>
+
+                            <td class="text-center text-nowrap">
+                                <a asp-action="Edit"
+                                   asp-route-id="@mecz.Id"
+                                   class="btn btn-sm btn-outline-secondary me-1"
+                                   title="Edytuj">✏️</a>
+
+                                <form asp-action="DeleteConfirmed"
+                                      asp-route-id="@mecz.Id"
+                                      method="post"
+                                      class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Usuń"
+                                            onclick="return confirm('Na pewno usunąć mecz @mecz.NumerMeczu?');">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            }
+        }
+    }
+</table>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var turniejGroups = document.querySelectorAll('tbody.turniej-group');
+            turniejGroups.forEach(function (group) {
+                group.addEventListener('click', function () {
+                    this.classList.toggle('collapsed');
+                });
+            });
+
+            var today = new Date();
+            var yyyy = today.getFullYear();
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var dd = String(today.getDate()).padStart(2, '0');
+            var key = yyyy + '-' + mm + '-' + dd;
+
+            var row = document.querySelector('tr.date-header[data-match-date="' + key + '"]');
+            if (row) {
+                row.scrollIntoView({ behavior: 'auto', block: 'center' });
+            }
+        });
+    </script>
+}

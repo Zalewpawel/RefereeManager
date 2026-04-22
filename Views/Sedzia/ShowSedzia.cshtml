@@ -1,0 +1,48 @@
+@model IEnumerable<Sedziowanie.Models.Sedzia>
+
+@{
+    ViewData["Title"] = "Lista Sędziów";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-bordered mb-0 text-center align-middle">
+            <thead class="thead-softgray">
+                <tr>
+                    <th>#</th>
+                    <th class="text-start">Nazwisko</th>
+                    <th class="text-start">Imię</th>
+                    <th>Klasa</th>
+                    <th>Telefon</th>
+                    <th>Email</th>
+                    <th>Mecze</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var lp = 1;
+                }
+                @foreach (var sedzia in Model)
+                {
+                    <tr>
+                        <td>@lp</td>
+                        <td class="sedzia-left">@sedzia.Nazwisko</td>
+                        <td class="sedzia-left">@sedzia.Imie</td>
+                        <td>@sedzia.Klasa</td>
+                        <td>@sedzia.Telefon</td>
+                        <td><a href="mailto:@sedzia.Email" class="text-decoration-none">@sedzia.Email</a></td>
+                        <td>
+                            <a asp-action="MeczeSedziego" asp-route-sedziaId="@sedzia.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-list me-1"></i> Mecze
+                            </a>
+                        </td>
+                    </tr>
+                    lp++;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

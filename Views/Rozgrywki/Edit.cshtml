@@ -1,0 +1,38 @@
+@model Sedziowanie.Models.Rozgrywki
+
+@{
+    ViewData["Title"] = "Edytuj rozgrywki";
+}
+
+<div class="container mt-4" style="max-width: 480px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-pen me-2"></i>@ViewData["Title"]</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" style="display:none"></div>
+
+                <input asp-for="Id" type="hidden" />
+
+                <div class="mb-4">
+                    <label asp-for="Nazwa" class="form-label fw-semibold"></label>
+                    <input asp-for="Nazwa" class="form-control" />
+                    <span asp-validation-for="Nazwa" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Zapisz
+                    </button>
+                    <a asp-action="ListaRozgrywekAdmin" class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

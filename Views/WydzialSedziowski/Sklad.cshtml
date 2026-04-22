@@ -1,0 +1,63 @@
+@model IEnumerable<Sedziowanie.Models.Komisja>
+
+@{
+    ViewData["Title"] = "Wydział Sędziowski — Skład";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Edit" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-pen me-1"></i> Edytuj
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i> Brak komisji do wyświetlenia.
+    </div>
+}
+else
+{
+    @foreach (var komisja in Model)
+    {
+        <div class="card shadow-sm mb-3">
+            <div class="card-header thead-softgray">
+                <strong>@komisja.Nazwa</strong>
+            </div>
+            <div class="card-body p-0 table-responsive">
+                <table class="table table-hover table-bordered mb-0 align-middle">
+                    <thead class="thead-softgray">
+                        <tr>
+                            <th>Nazwisko i imię</th>
+                            <th>Funkcja</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in komisja.Czlonkowie)
+                        {
+                            <tr>
+                                <td><strong>@c.Sedzia.Nazwisko</strong> @c.Sedzia.Imie</td>
+                                <td>@c.Funkcja</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(c.Email))
+                                    {
+                                        <a href="mailto:@c.Email" class="text-decoration-none">@c.Email</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}

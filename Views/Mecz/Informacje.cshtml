@@ -1,0 +1,100 @@
+@model Sedziowanie.Models.Mecz
+
+@{
+    ViewData["Title"] = "Informacje o meczu";
+    bool isAdmin = User.IsInRole("Admin");
+    string dataStr = (isAdmin || Model.UdostepnijGodzine) ? Model.Data.ToString("dd.MM.yyyy HH:mm") : Model.Data.ToString("dd.MM.yyyy");
+}
+
+<div class="container mt-3" style="max-width: 680px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-info-circle me-2"></i>
+                @Model.NumerMeczu — @Model.Gospodarz vs @Model.Gosc
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <div class="text-muted small">Data</div>
+                    <strong>@dataStr</strong>
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-muted small">Rozgrywki</div>
+                    <strong>@(Model.Rozgrywki?.Nazwa ?? (Model.RozgrywkiId != 0 ? $"ID: {Model.RozgrywkiId}" : "-"))</strong>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Turniej))
+                {
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Turniej</div>
+                        <strong>@Model.Turniej</strong>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Adres))
+                {
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Adres</div>
+                        <strong>@Model.Adres</strong>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.DodatkoweInformacje))
+                {
+                    <div class="col-12">
+                        <div class="text-muted small">Dodatkowe informacje</div>
+                        <span>@Model.DodatkoweInformacje</span>
+                    </div>
+                }
+            </div>
+
+            <hr />
+            <h6 class="text-muted text-uppercase mb-3"><i class="fas fa-whistle me-1"></i> Obsada sędziowska</h6>
+
+            <div class="row g-2">
+                @{
+                    var refs = new[]
+                    {
+                        ("Sędzia I", Model.SedziaI, Model.SedziaIId),
+                        ("Sędzia II", Model.SedziaII, Model.SedziaIIId),
+                        ("Sędzia Sekretarz", Model.SedziaSekretarz, Model.SedziaSekretarzId),
+                        ("Sędzia Liniowy I", Model.SedziaLiniowyI, Model.SedziaLiniowyIId),
+                        ("Sędzia Liniowy II", Model.SedziaLiniowyII, Model.SedziaLiniowyIIId),
+                        ("Sędzia Główny", Model.SedziaGlowny, Model.SedziaGlownyId)
+                    };
+                    foreach (var (label, sedzia, sedziaId) in refs)
+                    {
+                        <div class="col-sm-6">
+                            <div class="text-muted small">@label</div>
+                            <strong>
+                                @if (sedzia != null)
+                                {
+                                    @($"{sedzia.Imie} {sedzia.Nazwisko}")
+                                }
+                                else if (sedziaId.HasValue)
+                                {
+                                    @($"ID: {sedziaId.Value}")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </strong>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                @if (isAdmin)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                        <i class="fas fa-pen me-1"></i> Edytuj
+                    </a>
+                }
+                <a asp-action="ListaMeczow" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Powrót
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

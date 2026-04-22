@@ -1,0 +1,90 @@
+@model IEnumerable<Sedziowanie.Models.Niedyspozycja>
+
+@{
+    ViewData["Title"] = "Lista Niedyspozycji";
+    TimeZoneInfo polishTimeZone;
+    try
+    {
+        polishTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+    }
+    catch
+    {
+        polishTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw");
+    }
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="AddForAdmin" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Dodaj niedyspozycję
+        </a>
+    }
+</div>
+
+@{
+    var success = TempData["Success"] as string;
+    var error = TempData["Error"] as string;
+}
+@if (!string.IsNullOrEmpty(success))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@success
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@error
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-bordered mb-0 text-center align-middle">
+            <thead class="thead-softgray">
+                <tr>
+                    <th class="text-start">Nazwisko</th>
+                    <th class="text-start">Imię</th>
+                    <th>Niedyspozycja od</th>
+                    <th>Niedyspozycja do</th>
+                    <th>Data dodania</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var n in Model)
+                {
+                    <tr>
+                        <td class="sedzia-left">@n.Sedzia?.Nazwisko</td>
+                        <td class="sedzia-left">@n.Sedzia?.Imie</td>
+                        <td>@n.Poczatek.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@n.Koniec.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(n.DataDodania, DateTimeKind.Utc), polishTimeZone).ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <form asp-action="Delete" asp-controller="Niedyspozycja" method="post"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Na pewno usunąć tę niedyspozycję?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@n.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

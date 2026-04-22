@@ -1,0 +1,40 @@
+@model Sedziowanie.Models.Sedzia
+
+@{
+    ViewData["Title"] = "Usuń Sędziego";
+}
+
+<div class="container mt-4" style="max-width: 480px;">
+    <div class="card shadow-sm border-danger">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="fas fa-trash me-2"></i>Usuń Sędziego</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Czy na pewno chcesz usunąć sędziego <strong>@Model.Imie @Model.Nazwisko</strong>?
+                <br><small class="text-muted">Tej operacji nie można cofnąć.</small>
+            </div>
+
+            <dl class="row mb-4">
+                <dt class="col-sm-4">Klasa</dt>
+                <dd class="col-sm-8">@Model.Klasa</dd>
+                <dt class="col-sm-4">Email</dt>
+                <dd class="col-sm-8">@Model.Email</dd>
+                <dt class="col-sm-4">Miasto</dt>
+                <dd class="col-sm-8">@(Model.Miasto ?? "-")</dd>
+            </dl>
+
+            <form asp-action="DeleteConfirmed" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" value="@Model.Id" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i> Usuń
+                    </button>
+                    <a asp-action="ShowAll" class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

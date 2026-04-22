@@ -1,0 +1,84 @@
+@model IEnumerable<Sedziowanie.Models.Mecz>
+@using System.Linq
+
+@{
+    ViewData["Title"] = "Mecze w Rozgrywkach (admin)";
+    var rozgrywka = ViewBag.Rozgrywka;
+    Func<string?, string> clean = s => (s ?? string.Empty).Replace("<br/>", " ").Replace("<br>", " ").Replace("<br />", " ").Trim();
+}
+
+<h2>Mecze w rozgrywkach: @rozgrywka (admin)</h2>
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive matches-wide matches-wide-admin">
+    <table class="table table-bordered table-striped align-middle admin-matches-table">
+        <thead class="table-light">
+            <tr>
+                <th>Nr</th>
+                <th class="match-date-col">Data</th>
+                <th>Gospodarz</th>
+                <th>Goœæ</th>
+                <th>Sêdzia I</th>
+                <th>Sêdzia II</th>
+                <th>Sekretarz</th>
+                <th>Liniowy I</th>
+                <th>Liniowy II</th>
+                <th>G³ówny</th>
+                <th class="clock-col text-center" title="Udostêpnij godzinê">??</th>
+                <th class="text-center">Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mecz in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-controller="Mecz" asp-action="Informacje" asp-route-id="@mecz.Id" class="btn btn-link p-0 d-inline-flex flex-column align-items-start text-decoration-none">
+                            <span class="mecz-number">@mecz.NumerMeczu</span>
+                            @if (!string.IsNullOrWhiteSpace(mecz.Turniej))
+                            {
+                                <small class="mecz-turniej" title="@clean(mecz.Turniej)">@clean(mecz.Turniej)</small>
+                            }
+                        </a>
+                    </td>
+                    <td class="match-date-col">
+                        <div>@mecz.Data.ToString("dd.MM.yyyy")</div>
+                        <div class="match-time">@mecz.Data.ToString("HH:mm")</div>
+                    </td>
+                    <td>@mecz.Gospodarz</td>
+                    <td>@mecz.Gosc</td>
+                    <td>@(mecz.SedziaI != null ? mecz.SedziaI.Imie + " " + mecz.SedziaI.Nazwisko : (mecz.SedziaIId.HasValue ? $"ID: {mecz.SedziaIId}" : "-"))</td>
+                    <td>@(mecz.SedziaII != null ? mecz.SedziaII.Imie + " " + mecz.SedziaII.Nazwisko : (mecz.SedziaIIId.HasValue ? $"ID: {mecz.SedziaIIId}" : "-"))</td>
+                    <td>@(mecz.SedziaSekretarz != null ? mecz.SedziaSekretarz.Imie + " " + mecz.SedziaSekretarz.Nazwisko : (mecz.SedziaSekretarzId.HasValue ? $"ID: {mecz.SedziaSekretarzId}" : "-"))</td>
+                    <td>@(mecz.SedziaLiniowyI != null ? mecz.SedziaLiniowyI.Imie + " " + mecz.SedziaLiniowyI.Nazwisko : (mecz.SedziaLiniowyIId.HasValue ? $"ID: {mecz.SedziaLiniowyIId}" : "-"))</td>
+                    <td>@(mecz.SedziaLiniowyII != null ? mecz.SedziaLiniowyII.Imie + " " + mecz.SedziaLiniowyII.Nazwisko : (mecz.SedziaLiniowyIIId.HasValue ? $"ID: {mecz.SedziaLiniowyIIId}" : "-"))</td>
+                    <td>@(mecz.SedziaGlowny != null ? mecz.SedziaGlowny.Imie + " " + mecz.SedziaGlowny.Nazwisko : (mecz.SedziaGlownyId.HasValue ? $"ID: {mecz.SedziaGlownyId}" : "-"))</td>
+                    <td>
+                        <form asp-controller="Mecz" asp-action="ToggleUdostepnijGodzine" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@mecz.Id" />
+                            <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                            <div class="form-check d-flex align-items-center justify-content-center">
+                                <input class="form-check-input" type="checkbox" name="value" value="true" @(mecz.UdostepnijGodzine ? "checked" : "") onchange="this.form.submit()" />
+                                <input type="hidden" name="value" value="false" />
+                            </div>
+                        </form>
+                    </td>
+                    <td class="text-center text-nowrap">
+                        <a asp-controller="Mecz" asp-action="Edit" asp-route-id="@mecz.Id" class="btn btn-sm btn-outline-secondary me-1">??</a>
+                        <form asp-controller="Mecz" asp-action="DeleteConfirmed" asp-route-id="@mecz.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Na pewno usun¹æ mecz @mecz.NumerMeczu?');">???</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>
+}
+else
+{
+    <p>Brak meczów w wybranych rozgrywkach.</p>
+}

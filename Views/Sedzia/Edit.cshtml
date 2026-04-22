@@ -1,0 +1,76 @@
+@model Sedziowanie.Models.Sedzia
+
+@{
+    ViewData["Title"] = "Edytuj Sędziego";
+}
+
+<div class="container mt-4" style="max-width: 560px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Edytuj Sędziego</h5>
+        </div>
+        <div class="card-body">
+            <div asp-validation-summary="All" class="alert alert-danger mb-3"></div>
+
+            <form asp-action="Edit" method="post">
+                <input type="hidden" id="Id" name="Id" value="@Model.Id" />
+
+                <div class="mb-3">
+                    <label for="Imie" class="form-label fw-semibold">Imię</label>
+                    <input type="text" id="Imie" name="Imie" class="form-control" required maxlength="50" value="@Model.Imie" />
+                    <span asp-validation-for="Imie" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Nazwisko" class="form-label fw-semibold">Nazwisko</label>
+                    <input type="text" id="Nazwisko" name="Nazwisko" class="form-control" required maxlength="50" value="@Model.Nazwisko" />
+                    <span asp-validation-for="Nazwisko" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Klasa" class="form-label fw-semibold">Klasa</label>
+                    <input type="text" id="Klasa" name="Klasa" class="form-control" required maxlength="20" value="@Model.Klasa" />
+                    <span asp-validation-for="Klasa" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Telefon" class="form-label fw-semibold">Telefon</label>
+                    <input type="tel" id="Telefon" name="Telefon" class="form-control" maxlength="15" value="@Model.Telefon" />
+                    <span asp-validation-for="Telefon" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Email" class="form-label fw-semibold">Email</label>
+                    <input type="email" id="Email" name="Email" class="form-control" required maxlength="100" value="@Model.Email" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="Miasto" class="form-label fw-semibold">Miasto</label>
+                    <input type="text" id="Miasto" name="Miasto" class="form-control" maxlength="100" value="@Model.Miasto" />
+                    <span asp-validation-for="Miasto" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold d-block">Czy na urlopie?</label>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="CzyUrlop" value="true" id="CzyUrlopTrue" />
+                        <label class="form-check-label" for="CzyUrlopTrue">Tak</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="CzyUrlop" value="false" id="CzyUrlopFalse" />
+                        <label class="form-check-label" for="CzyUrlopFalse">Nie</label>
+                    </div>
+                    <span asp-validation-for="CzyUrlop" class="text-danger small d-block"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Zapisz
+                    </button>
+                    <a asp-action="ShowAll" class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

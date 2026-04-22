@@ -1,0 +1,109 @@
+@model IEnumerable<Sedziowanie.ViewModels.UserViewModel>
+
+@{
+    ViewData["Title"] = "Lista użytkowników";
+
+    string RoleLabel(string? role) => role switch
+    {
+        "Admin" => "Admin",
+        "Sedzia" => "Sędzia",
+        "User" => "Trener",
+        _ => role ?? "Brak roli"
+    };
+
+    string RoleBadgeClass(string? role) => role switch
+    {
+        "Admin" => "bg-danger",
+        "Sedzia" => "bg-primary",
+        "User" => "bg-success",
+        _ => "bg-secondary"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+    <form asp-action="ForceChangePasswordAll" method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-warning btn-sm"
+                onclick="return confirm('Wymusić zmianę hasła dla WSZYSTKICH użytkowników przy następnym logowaniu?');">
+            <i class="fas fa-shield-alt me-1"></i> Wymuś zmianę hasła — wszyscy
+        </button>
+    </form>
+</div>
+
+@if (TempData["Success"] is string successMessage)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@successMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] is string errorMessage)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@errorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-bordered mb-0 align-middle">
+            <thead class="thead-softgray">
+                <tr>
+                    <th>Nazwisko</th>
+                    <th>Imię</th>
+                    <th>Email</th>
+                    <th class="text-center">Rola</th>
+                    <th class="text-center">Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.Nazwisko</td>
+                        <td>@user.Imie</td>
+                        <td><a href="mailto:@user.Email" class="text-decoration-none">@user.Email</a></td>
+                        <td class="text-center">
+                            <span class="badge @RoleBadgeClass(user.Role)">@RoleLabel(user.Role)</span>
+                        </td>
+                        <td class="text-center text-nowrap">
+                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary me-1" title="Edytuj">
+                                <i class="fas fa-pen"></i> Edytuj
+                            </a>
+
+                            <form asp-action="ForceChangePassword" asp-route-id="@user.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-warning me-1"
+                                        onclick="return confirm('Wymusić zmianę hasła przy następnym logowaniu dla @(user.Imie) @(user.Nazwisko)?');"
+                                        title="Wymuś zmianę hasła">
+                                    <i class="fas fa-shield-alt"></i> Zmień hasło
+                                </button>
+                            </form>
+
+                            <form asp-action="ForcePasswordReset" asp-route-id="@user.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-warning me-1"
+                                        onclick="return confirm('Wysłać e-mail z linkiem resetującym do @(user.Imie) @(user.Nazwisko)?');"
+                                        title="Wyślij link resetujący przez e-mail">
+                                    <i class="fas fa-envelope"></i> Reset e-mail
+                                </button>
+                            </form>
+
+                            <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Czy na pewno chcesz usunąć użytkownika @(user.Imie) @(user.Nazwisko)?');"
+                                        title="Usuń">
+                                    <i class="fas fa-trash"></i> Usuń
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

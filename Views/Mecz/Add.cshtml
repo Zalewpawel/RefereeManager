@@ -1,0 +1,250 @@
+@model Sedziowanie.Models.Mecz
+@using Sedziowanie.Models
+
+@{
+    ViewData["Title"] = "Dodaj Mecz";
+}
+
+<h2>Dodaj Mecz</h2>
+
+<div class="card shadow-sm" style="max-width: 680px;">
+    <div class="card-body">
+        <form asp-action="Add" method="post" id="meczForm">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="NumerMeczu" class="form-label fw-semibold"></label>
+                    <input asp-for="NumerMeczu" class="form-control" />
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Data" class="form-label fw-semibold">Data meczu</label>
+                    <input asp-for="Data" type="datetime-local" class="form-control" id="dataMeczuPicker" value="@ViewBag.DataMeczu" />
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="Gospodarz" class="form-label fw-semibold"></label>
+                    <input asp-for="Gospodarz" class="form-control" maxlength="100" />
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Gosc" class="form-label fw-semibold">Gość</label>
+                    <input asp-for="Gosc" class="form-control" maxlength="100" />
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="GospodarzKlubId" class="form-label fw-semibold">Gospodarz — klub (opcjonalnie)</label>
+                    <select asp-for="GospodarzKlubId" class="form-select">
+                        <option value="">-- Brak klubu --</option>
+                        @if (ViewBag.ClubUsersSelect != null)
+                        {
+                            foreach (var item in (IEnumerable<SelectListItem>)ViewBag.ClubUsersSelect)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="GoscKlubId" class="form-label fw-semibold">Gość — klub (opcjonalnie)</label>
+                    <select asp-for="GoscKlubId" class="form-select">
+                        <option value="">-- Brak klubu --</option>
+                        @if (ViewBag.ClubUsersSelect != null)
+                        {
+                            foreach (var item in (IEnumerable<SelectListItem>)ViewBag.ClubUsersSelect)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="RozgrywkiId" class="form-label fw-semibold">Rozgrywki</label>
+                <select asp-for="RozgrywkiId"
+                        asp-items="@(new SelectList((IEnumerable<Rozgrywki>)ViewBag.Rozgrywki,
+                                                     nameof(Rozgrywki.Id),
+                                                     nameof(Rozgrywki.Nazwa),
+                                                     Model?.RozgrywkiId))"
+                        class="form-select">
+                    <option value="">-- Wybierz rozgrywki --</option>
+                </select>
+                <span asp-validation-for="RozgrywkiId" class="text-danger small"></span>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="Turniej" class="form-label fw-semibold"></label>
+                    <input asp-for="Turniej" class="form-control" maxlength="200" />
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Adres" class="form-label fw-semibold"></label>
+                    <input asp-for="Adres" class="form-control" maxlength="250" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DodatkoweInformacje" class="form-label fw-semibold"></label>
+                <textarea asp-for="DodatkoweInformacje" class="form-control" rows="3"></textarea>
+            </div>
+
+            <hr class="my-3" />
+            <h6 class="text-muted text-uppercase mb-3">Obsada sędziowska</h6>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="SedziaIId" class="form-label fw-semibold">Sędzia I</label>
+                    <select asp-for="SedziaIId" class="form-select sedzia-select" id="sel-sedziaI">
+                        <option value="">-- Wybierz --</option>
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="SedziaIIId" class="form-label fw-semibold">Sędzia II</label>
+                    <select asp-for="SedziaIIId" class="form-select sedzia-select" id="sel-sedziaII">
+                        <option value="">-- Wybierz --</option>
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="SedziaSekretarzId" class="form-label fw-semibold">Sędzia Sekretarz</label>
+                    <select asp-for="SedziaSekretarzId" class="form-select sedzia-select" id="sel-sekretarz">
+                        <option value="">-- Wybierz --</option>
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="SedziaGlownyId" class="form-label fw-semibold">Sędzia Główny</label>
+                    <select asp-for="SedziaGlownyId" class="form-select sedzia-select" id="sel-glowny">
+                        <option value="">-- Wybierz --</option>
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="SedziaLiniowyIId" class="form-label fw-semibold">Sędzia Liniowy I</label>
+                    <select asp-for="SedziaLiniowyIId" class="form-select sedzia-select" id="sel-lin1">
+                        <option value="">-- Wybierz --</option>
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="SedziaLiniowyIIId" class="form-label fw-semibold">Sędzia Liniowy II</label>
+                    <select asp-for="SedziaLiniowyIIId" class="form-select sedzia-select" id="sel-lin2">
+                        <option value="">-- Wybierz --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Dodaj Mecz
+                </button>
+                <a asp-action="ListaMeczowAdmin" class="btn btn-outline-secondary ms-2">Anuluj</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const initialSedziowie = @Html.Raw((string)ViewData["SedziowieJson"] ?? "[]");
+
+        const selects = [
+            document.getElementById('sel-sedziaI'),
+            document.getElementById('sel-sedziaII'),
+            document.getElementById('sel-sekretarz'),
+            document.getElementById('sel-lin1'),
+            document.getElementById('sel-lin2'),
+            document.getElementById('sel-glowny')
+        ];
+
+        function statusRank(s) {
+            if (s === 'DOSTEPNY') return 0;
+            if (s === 'NIEDOSTEPNY') return 1;
+            if (s === 'URLOP') return 2;
+            return 3;
+        }
+
+        function sortSedziowie(arr) {
+            return [...arr].sort((a, b) => {
+                const r = statusRank(a.status) - statusRank(b.status);
+                if (r !== 0) return r;
+                const ln = a.nazwisko.localeCompare(b.nazwisko, 'pl', { sensitivity: 'base' });
+                if (ln !== 0) return ln;
+                return a.imie.localeCompare(b.imie, 'pl', { sensitivity: 'base' });
+            });
+        }
+
+        function colorFor(s) {
+            if (s.status === 'URLOP') return 'gray';
+            if (s.maMeczTegoDnia) return '#1a6ecc';
+            if (s.status === 'NIEDOSTEPNY') return '#c0392b';
+            return '';
+        }
+
+        function buildOptGroup(label, items) {
+            const og = document.createElement('optgroup');
+            og.label = label;
+            for (const s of items) {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                const miasto = s.miasto ?? s.Miasto ?? "";
+                opt.textContent = `${s.nazwisko} ${s.imie} (${s.klasa})${miasto ? ' — ' + miasto : ''}`;
+                const c = colorFor(s);
+                if (c) opt.style.color = c;
+                og.appendChild(opt);
+            }
+            return og;
+        }
+
+        function populateAllSelects(sedziowie, preserveSelection = true) {
+            const dostepni = sedziowie.filter(s => s.status === 'DOSTEPNY');
+            const niedostepni = sedziowie.filter(s => s.status === 'NIEDOSTEPNY');
+            const urlop = sedziowie.filter(s => s.status === 'URLOP');
+
+            for (const sel of selects) {
+                const prev = preserveSelection ? sel.value : '';
+                sel.innerHTML = '';
+                const empty = document.createElement('option');
+                empty.value = '';
+                empty.textContent = '-- Wybierz --';
+                sel.appendChild(empty);
+
+                if (dostepni.length) sel.appendChild(buildOptGroup('DOSTĘPNI', dostepni));
+                if (niedostepni.length) sel.appendChild(buildOptGroup('NIEDYSPOZYCJE', niedostepni));
+                if (urlop.length) sel.appendChild(buildOptGroup('URLOP', urlop));
+
+                if (preserveSelection && prev) {
+                    const exists = [...sel.options].some(o => o.value === prev);
+                    if (exists) sel.value = prev;
+                }
+            }
+        }
+
+        async function refreshSedziowieFor(dateStr) {
+            if (!dateStr) return;
+            const url = `@Url.Action("GetSedziowieByDate", "Mecz")?data=${encodeURIComponent(dateStr)}`;
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            populateAllSelects(sortSedziowie(data));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateAllSelects(sortSedziowie(initialSedziowie), false);
+
+            const picker = document.getElementById('dataMeczuPicker');
+            const trigger = () => refreshSedziowieFor(picker.value);
+            picker.addEventListener('change', trigger);
+            picker.addEventListener('input', trigger);
+        });
+    </script>
+}

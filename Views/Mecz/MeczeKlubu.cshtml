@@ -1,0 +1,64 @@
+@model IEnumerable<Sedziowanie.Models.Mecz>
+@using System.Linq
+
+@{
+    ViewData["Title"] = "Mecze Klubu";
+    Func<string?, string> clean = s => (s ?? string.Empty).Replace("<br/>", " ").Replace("<br>", " ").Replace("<br />", " ").Trim();
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (Model != null && Model.Any())
+{
+    <div class="matches-wide">
+        <table class="table table-hover table-bordered table-striped align-middle table-left">
+            <thead class="thead-softgray">
+                <tr>
+                    <th>Numer</th>
+                    <th>Data</th>
+                    <th>Gospodarz</th>
+                    <th>Gość</th>
+                    <th>Rozgrywki</th>
+                    <th>Sędzia<br />I</th>
+                    <th>Sędzia<br />II</th>
+                    <th>Sędzia<br />Sekretarz</th>
+                    <th>Sędzia<br />Liniowy I</th>
+                    <th>Sędzia<br />Liniowy II</th>
+                    <th>Sędzia<br />Główny</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var mecz in Model.OrderBy(m => m.Data))
+                {
+                    <tr>
+                        <td>
+                            <a asp-action="Informacje" asp-route-id="@mecz.Id" class="btn btn-link p-0 d-inline-flex flex-column align-items-start text-decoration-none">
+                                <span class="mecz-number">@mecz.NumerMeczu</span>
+                                @if (!string.IsNullOrWhiteSpace(mecz.Turniej))
+                                {
+                                    <small class="mecz-turniej" title="@clean(mecz.Turniej)">@clean(mecz.Turniej)</small>
+                                }
+                            </a>
+                        </td>
+                        <td>@mecz.Data.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@mecz.Gospodarz</td>
+                        <td>@mecz.Gosc</td>
+                        <td>@mecz.Rozgrywki?.Nazwa</td>
+                        <td>@Html.Raw(mecz.SedziaI != null ? $"{mecz.SedziaI.Imie}<br/>{mecz.SedziaI.Nazwisko}" : "-")</td>
+                        <td>@Html.Raw(mecz.SedziaII != null ? $"{mecz.SedziaII.Imie}<br/>{mecz.SedziaII.Nazwisko}" : "-")</td>
+                        <td>@Html.Raw(mecz.SedziaSekretarz != null ? $"{mecz.SedziaSekretarz.Imie}<br/>{mecz.SedziaSekretarz.Nazwisko}" : "-")</td>
+                        <td>@Html.Raw(mecz.SedziaLiniowyI != null ? $"{mecz.SedziaLiniowyI.Imie}<br/>{mecz.SedziaLiniowyI.Nazwisko}" : "-")</td>
+                        <td>@Html.Raw(mecz.SedziaLiniowyII != null ? $"{mecz.SedziaLiniowyII.Imie}<br/>{mecz.SedziaLiniowyII.Nazwisko}" : "-")</td>
+                        <td>@Html.Raw(mecz.SedziaGlowny != null ? $"{mecz.SedziaGlowny.Imie}<br/>{mecz.SedziaGlowny.Nazwisko}" : "-")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i> Brak meczów przypisanych do Twojego klubu.
+    </div>
+}

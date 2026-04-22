@@ -1,0 +1,42 @@
+@model Sedziowanie.Models.Mecz
+
+@{
+    ViewData["Title"] = "Usuń Mecz";
+}
+
+<div class="container mt-4" style="max-width: 480px;">
+    <div class="card shadow-sm border-danger">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="fas fa-trash me-2"></i>Usuń Mecz</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Czy na pewno chcesz usunąć mecz?
+                <br><small class="text-muted">Tej operacji nie można cofnąć.</small>
+            </div>
+
+            <dl class="row mb-4">
+                <dt class="col-sm-4">Numer</dt>
+                <dd class="col-sm-8"><strong>@Model.NumerMeczu</strong></dd>
+                <dt class="col-sm-4">Gospodarz</dt>
+                <dd class="col-sm-8">@Model.Gospodarz</dd>
+                <dt class="col-sm-4">Gość</dt>
+                <dd class="col-sm-8">@Model.Gosc</dd>
+                <dt class="col-sm-4">Data</dt>
+                <dd class="col-sm-8">@Model.Data.ToString("dd.MM.yyyy HH:mm")</dd>
+            </dl>
+
+            <form asp-action="DeleteConfirmed" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i> Usuń
+                    </button>
+                    <a asp-action="ListaMeczowAdmin" class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

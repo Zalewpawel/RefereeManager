@@ -1,0 +1,84 @@
+@model IEnumerable<Sedziowanie.Models.Sedzia>
+
+@{
+    ViewData["Title"] = "Lista Sędziów";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+    <div class="d-flex gap-2">
+        <a asp-action="Add" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Dodaj sędziego
+        </a>
+        <a asp-action="Statystyki" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-chart-bar me-1"></i> Statystyki
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover table-bordered mb-0 text-center align-middle">
+            <thead class="thead-softgray">
+                <tr>
+                    <th>#</th>
+                    <th class="text-start">Nazwisko</th>
+                    <th class="text-start">Imię</th>
+                    <th>Klasa</th>
+                    <th>Telefon</th>
+                    <th>Email</th>
+                    <th>Miasto</th>
+                    <th style="width:52px;"></th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var lp = 1;
+                }
+                @foreach (var sedzia in Model)
+                {
+                    <tr class="@(sedzia.CzyUrlop ? "table-secondary text-muted" : "")">
+                        <td>@lp</td>
+                        <td class="sedzia-left">
+                            @sedzia.Nazwisko
+                            @if (sedzia.CzyUrlop)
+                            {
+                                <span class="badge bg-secondary ms-1">urlop</span>
+                            }
+                        </td>
+                        <td class="sedzia-left">@sedzia.Imie</td>
+                        <td>@sedzia.Klasa</td>
+                        <td>@sedzia.Telefon</td>
+                        <td><a href="mailto:@sedzia.Email" class="text-decoration-none">@sedzia.Email</a></td>
+                        <td>@sedzia.Miasto</td>
+                        <td>
+                            <a asp-action="Informacje" asp-route-id="@sedzia.Id"
+                               class="btn btn-sm btn-outline-info" title="Informacje o sędzi"
+                               style="padding: .15rem .35rem;">
+                                <i class="fas fa-info"></i>
+                            </a>
+                        </td>
+                        <td class="text-nowrap">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a asp-action="MeczeSedziego" asp-route-sedziaId="@sedzia.Id"
+                                   class="btn btn-outline-secondary" title="Mecze">
+                                    <i class="fas fa-list"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@sedzia.Id"
+                                   class="btn btn-outline-primary" title="Edytuj">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@sedzia.Id"
+                                   class="btn btn-outline-danger" title="Usuń">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    lp++;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

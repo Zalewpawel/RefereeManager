@@ -1,0 +1,152 @@
+﻿@model IEnumerable<Sedziowanie.Models.Mecz>
+@using System.Linq
+
+@{
+    ViewData["Title"] = "Mecze Sędziego";
+    var sedzia = ViewBag.Sedzia;
+    bool isAdmin = User.IsInRole("Admin");
+    Func<string?, string> cleanAndEncode = s => System.Net.WebUtility.HtmlEncode((s ?? string.Empty).Replace("<br/>", " ").Replace("<br>", " ").Replace("<br />", " ").Trim());
+    Func<string?, string> clean = s => (s ?? string.Empty).Replace("<br/>", " ").Replace("<br>", " ").Replace("<br />", " ").Trim();
+}
+
+<h2>@ViewData["Title"]: @sedzia</h2>
+
+@if (Model != null && Model.Any())
+{
+    <div class="matches-wide">
+    <table class="table table-bordered text-center table-left">
+        <thead class="thead-softgray">
+            <tr>
+                <th>Nr</th>
+                <th>Data</th>
+                <th>Rozgrywki</th>
+                <th>Gospodarz</th>
+                <th>Gość</th>
+                <th>Sędzia<br/>I</th>
+                <th>Sędzia<br/>II</th>
+                <th>Sędzia<br/>Sekretarz</th>
+                <th>Sędzia<br/>Liniowy I</th>
+                <th>Sędzia<br/>Liniowy II</th>
+                <th>Sędzia<br/>Główny</th>
+            </tr>
+        </thead>
+
+        @foreach (var dayGroup in Model.GroupBy(m => m.Data.Date).OrderBy(g => g.Key))
+        {
+            <tbody>
+                <tr class="date-header">
+                    <td colspan="11">@dayGroup.Key.ToString("dd.MM.yyyy")</td>
+                </tr>
+            </tbody>
+
+            var dayItems = dayGroup
+                .Where(m => !string.IsNullOrWhiteSpace(m.Turniej))
+                .GroupBy(m => m.Turniej)
+                .Select(g => new { Time = g.Min(m => m.Data), IsTurniej = true, Matches = g.OrderBy(m => m.Data).ToList() })
+                .Concat(
+                    dayGroup
+                        .Where(m => string.IsNullOrWhiteSpace(m.Turniej))
+                        .Select(m => new { Time = m.Data, IsTurniej = false, Matches = new List<Sedziowanie.Models.Mecz> { m } })
+                )
+                .OrderBy(x => x.Time)
+                .ToList();
+
+            foreach (var item in dayItems)
+            {
+                var matches = item.Matches;
+                bool isTurniejGroup = item.IsTurniej && matches.Count > 1;
+
+                if (isTurniejGroup)
+                {
+                    <tbody class="turniej-group">
+                        @for (int i = 0; i < matches.Count; i++)
+                        {
+                            var mecz = matches[i];
+                            <tr>
+                                <td>
+                                    <a asp-action="Informacje" asp-controller="Mecz" asp-route-id="@mecz.Id" class="btn btn-link p-0 d-inline-flex flex-column align-items-start text-decoration-none">
+                                        <span class="mecz-number">@mecz.NumerMeczu</span>
+                                        @if (!string.IsNullOrWhiteSpace(mecz.Turniej))
+                                        {
+                                            <small class="mecz-turniej" title="@clean(mecz.Turniej)">@clean(mecz.Turniej)</small>
+                                        }
+                                    </a>
+                                </td>
+
+                                <td>
+                                    @if (isAdmin || mecz.UdostepnijGodzine)
+                                    {
+                                        @mecz.Data.ToString("dd.MM.yyyy HH:mm")
+                                    }
+                                    else
+                                    {
+                                        @mecz.Data.ToString("dd.MM.yyyy")
+                                    }
+                                </td>
+
+                                <td>@mecz.Rozgrywki?.Nazwa</td>
+                                <td>@mecz.Gospodarz</td>
+                                <td>@mecz.Gosc</td>
+
+                                <td>@Html.Raw(mecz.SedziaI != null ? $"{cleanAndEncode(mecz.SedziaI.Imie)}<br/>{cleanAndEncode(mecz.SedziaI.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaII != null ? $"{cleanAndEncode(mecz.SedziaII.Imie)}<br/>{cleanAndEncode(mecz.SedziaII.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaSekretarz != null ? $"{cleanAndEncode(mecz.SedziaSekretarz.Imie)}<br/>{cleanAndEncode(mecz.SedziaSekretarz.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaLiniowyI != null ? $"{cleanAndEncode(mecz.SedziaLiniowyI.Imie)}<br/>{cleanAndEncode(mecz.SedziaLiniowyI.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaLiniowyII != null ? $"{cleanAndEncode(mecz.SedziaLiniowyII.Imie)}<br/>{cleanAndEncode(mecz.SedziaLiniowyII.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaGlowny != null ? $"{cleanAndEncode(mecz.SedziaGlowny.Imie)}<br/>{cleanAndEncode(mecz.SedziaGlowny.Nazwisko)}" : "-")</td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+                else
+                {
+                    <tbody>
+                        @foreach (var mecz in matches)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-action="Informacje" asp-controller="Mecz" asp-route-id="@mecz.Id" class="btn btn-link p-0 d-inline-flex flex-column align-items-start text-decoration-none">
+                                        <span class="mecz-number">@mecz.NumerMeczu</span>
+                                        @if (!string.IsNullOrWhiteSpace(mecz.Turniej))
+                                        {
+                                            <small class="mecz-turniej" title="@clean(mecz.Turniej)">@clean(mecz.Turniej)</small>
+                                        }
+                                    </a>
+                                </td>
+
+                                <td>
+                                    @if (isAdmin || mecz.UdostepnijGodzine)
+                                    {
+                                        @mecz.Data.ToString("dd.MM.yyyy HH:mm")
+                                    }
+                                    else
+                                    {
+                                        @mecz.Data.ToString("dd.MM.yyyy")
+                                    }
+                                </td>
+
+                                <td>@mecz.Rozgrywki?.Nazwa</td>
+                                <td>@mecz.Gospodarz</td>
+                                <td>@mecz.Gosc</td>
+
+                                <td>@Html.Raw(mecz.SedziaI != null ? $"{cleanAndEncode(mecz.SedziaI.Imie)}<br/>{cleanAndEncode(mecz.SedziaI.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaII != null ? $"{cleanAndEncode(mecz.SedziaII.Imie)}<br/>{cleanAndEncode(mecz.SedziaII.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaSekretarz != null ? $"{cleanAndEncode(mecz.SedziaSekretarz.Imie)}<br/>{cleanAndEncode(mecz.SedziaSekretarz.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaLiniowyI != null ? $"{cleanAndEncode(mecz.SedziaLiniowyI.Imie)}<br/>{cleanAndEncode(mecz.SedziaLiniowyI.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaLiniowyII != null ? $"{cleanAndEncode(mecz.SedziaLiniowyII.Imie)}<br/>{cleanAndEncode(mecz.SedziaLiniowyII.Nazwisko)}" : "-")</td>
+                                <td>@Html.Raw(mecz.SedziaGlowny != null ? $"{cleanAndEncode(mecz.SedziaGlowny.Imie)}<br/>{cleanAndEncode(mecz.SedziaGlowny.Nazwisko)}" : "-")</td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+            }
+        }
+    </table>
+    </div>
+
+    <script src="/js/site.js"></script>
+}
+else
+{
+    <p>Brak meczów dla wybranego sędziego.</p>
+}

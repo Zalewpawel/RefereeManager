@@ -1,0 +1,123 @@
+@model Sedziowanie.ViewModels.NiedyspozycjaCreateViewModel
+
+@{
+    ViewData["Title"] = "Dodaj niedyspozycję";
+}
+
+<div class="container mt-4" style="max-width: 560px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-calendar-times me-2"></i>Dodaj niedyspozycję</h5>
+        </div>
+        <div class="card-body">
+            @{
+                var success = TempData["Success"] as string;
+                var error = TempData["Error"] as string;
+            }
+            @if (!string.IsNullOrEmpty(success))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>@success
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>@error
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <form asp-action="AddForSedzia" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Typ niedyspozycji</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" id="optAllDay" name="IsAllDay" value="true"
+                               @(Model.IsAllDay ? "checked" : "") autocomplete="off" />
+                        <label class="btn btn-outline-primary" for="optAllDay">
+                            <i class="fas fa-calendar me-1"></i> Całe dni
+                        </label>
+                        <input type="radio" class="btn-check" id="optHourly" name="IsAllDay" value="false"
+                               @(!Model.IsAllDay ? "checked" : "") autocomplete="off" />
+                        <label class="btn btn-outline-primary" for="optHourly">
+                            <i class="fas fa-clock me-1"></i> Godzinowa
+                        </label>
+                    </div>
+                </div>
+
+                <div id="allDayFields" class="border rounded p-3 mb-3 bg-light">
+                    <div class="mb-3">
+                        <label for="StartDate" class="form-label fw-semibold">Początek (dzień)</label>
+                        <input type="date" id="StartDate" name="StartDate"
+                               value="@(Model.StartDate?.ToString("yyyy-MM-dd"))"
+                               class="form-control" />
+                    </div>
+                    <div class="mb-0">
+                        <label for="EndDate" class="form-label fw-semibold">Koniec (dzień)</label>
+                        <input type="date" id="EndDate" name="EndDate"
+                               value="@(Model.EndDate?.ToString("yyyy-MM-dd"))"
+                               class="form-control" />
+                    </div>
+                </div>
+
+                <div id="hourlyFields" class="border rounded p-3 mb-3 bg-light">
+                    <div class="mb-3">
+                        <label for="StartDateTime" class="form-label fw-semibold">Początek (data i godzina)</label>
+                        <input type="datetime-local" id="StartDateTime" name="StartDateTime"
+                               value="@(Model.StartDateTime?.ToString("yyyy-MM-ddTHH\\:mm"))"
+                               class="form-control" />
+                    </div>
+                    <div class="mb-0">
+                        <label for="EndDateTime" class="form-label fw-semibold">Koniec (data i godzina)</label>
+                        <input type="datetime-local" id="EndDateTime" name="EndDateTime"
+                               value="@(Model.EndDateTime?.ToString("yyyy-MM-ddTHH\\:mm"))"
+                               class="form-control" />
+                    </div>
+                </div>
+
+                <div class="text-danger mb-3">
+                    @Html.ValidationSummary(true)
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> Dodaj
+                    </button>
+                    <a asp-action="MojeNiedyspozycje" class="btn btn-outline-secondary">Anuluj</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const optAllDay = document.getElementById('optAllDay');
+            const optHourly = document.getElementById('optHourly');
+            const allDayFields = document.getElementById('allDayFields');
+            const hourlyFields = document.getElementById('hourlyFields');
+            const startDate = document.getElementById('StartDate');
+            const endDate = document.getElementById('EndDate');
+            const startDt = document.getElementById('StartDateTime');
+            const endDt = document.getElementById('EndDateTime');
+
+            function toggle() {
+                const isAllDay = optAllDay.checked;
+                allDayFields.style.display = isAllDay ? '' : 'none';
+                hourlyFields.style.display = isAllDay ? 'none' : '';
+                startDate.required = isAllDay;
+                endDate.required = isAllDay;
+                startDt.required = !isAllDay;
+                endDt.required = !isAllDay;
+            }
+
+            optAllDay.addEventListener('change', toggle);
+            optHourly.addEventListener('change', toggle);
+            toggle();
+        })();
+    </script>
+}

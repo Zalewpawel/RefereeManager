@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet test *)",
+      "Bash(grep -E 'filename=\"Services\\\\\\\\')",
+      "Read(//c/Users/zalew/.claude/projects/c--Users-zalew-source-repos-SystemObsad/memory/**)"
+    ]
+  }
+}

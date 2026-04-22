@@ -1,0 +1,90 @@
+@model IEnumerable<Sedziowanie.ViewModels.SedziaStatsDto>
+
+@{
+    ViewData["Title"] = "Statystyki sędziów";
+    string currentSort = ViewBag.SortBy as string ?? "MeczeCount";
+    bool currentDesc = ViewBag.Desc as bool? ?? true;
+
+    string Arrow(string col) => currentSort == col ? (currentDesc ? " ↓" : " ↑") : "";
+    bool NextDesc(string col) => currentSort == col ? !currentDesc : true;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+    <a asp-action="ExportStatystykiExcel"
+       asp-route-sortBy="@currentSort"
+       asp-route-desc="@currentDesc"
+       class="btn btn-success btn-sm">
+        <i class="fas fa-file-excel me-1"></i> Eksport do Excela
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-striped mb-0">
+                <thead class="thead-softgray">
+                    <tr>
+                        <th style="width:50px;">#</th>
+                        <th><a asp-action="Statystyki" asp-route-sortBy="Nazwisko" asp-route-desc='@NextDesc("Nazwisko")'>Nazwisko@(Arrow("Nazwisko"))</a></th>
+                        <th class="stats-sep-right"><a asp-action="Statystyki" asp-route-sortBy="Imie" asp-route-desc='@NextDesc("Imie")'>Imię@(Arrow("Imie"))</a></th>
+                        <th class="stats-sep-right" title="Łącznie meczów"><a asp-action="Statystyki" asp-route-sortBy="MeczeCount" asp-route-desc='@NextDesc("MeczeCount")'>Łącznie@(Arrow("MeczeCount"))</a></th>
+                        <th title="Sędzia I"><a asp-action="Statystyki" asp-route-sortBy="SiCount" asp-route-desc='@NextDesc("SiCount")'>SI@(Arrow("SiCount"))</a></th>
+                        <th title="Sędzia II"><a asp-action="Statystyki" asp-route-sortBy="SiiCount" asp-route-desc='@NextDesc("SiiCount")'>SII@(Arrow("SiiCount"))</a></th>
+                        <th title="Sędzia Sekretarz"><a asp-action="Statystyki" asp-route-sortBy="SsCount" asp-route-desc='@NextDesc("SsCount")'>SS@(Arrow("SsCount"))</a></th>
+                        <th title="Sędzia Główny"><a asp-action="Statystyki" asp-route-sortBy="SgCount" asp-route-desc='@NextDesc("SgCount")'>SG@(Arrow("SgCount"))</a></th>
+                        <th class="stats-sep-right" title="Suma: Sędzia Liniowy I + Sędzia Liniowy II"><a asp-action="Statystyki" asp-route-sortBy="LCount" asp-route-desc='@NextDesc("LCount")'>L@(Arrow("LCount"))</a></th>
+                        <th title="I Liga Kobiet, PLS 1. Liga Mężczyzn, II Liga Kobiet, II Liga Mężczyzn"><a asp-action="Statystyki" asp-route-sortBy="SzczebelCount" asp-route-desc='@NextDesc("SzczebelCount")'>SC@(Arrow("SzczebelCount"))</a></th>
+                        <th title="III Liga Kobiet, III Liga Mężczyzn"><a asp-action="Statystyki" asp-route-sortBy="Liga3Count" asp-route-desc='@NextDesc("Liga3Count")'>3@(Arrow("Liga3Count"))</a></th>
+                        <th title="MW Juniorek, MW Juniorów"><a asp-action="Statystyki" asp-route-sortBy="JCount" asp-route-desc='@NextDesc("JCount")'>J@(Arrow("JCount"))</a></th>
+                        <th title="MW Kadetek, MW Kadetów"><a asp-action="Statystyki" asp-route-sortBy="KCount" asp-route-desc='@NextDesc("KCount")'>K@(Arrow("KCount"))</a></th>
+                        <th title="MW Młodziczek, MW Młodzików"><a asp-action="Statystyki" asp-route-sortBy="MlCount" asp-route-desc='@NextDesc("MlCount")'>Mł@(Arrow("MlCount"))</a></th>
+                        <th title="Wszystkie MP: Juniorek, Juniorów, Kadetek, Kadetów, Młodziczek, Młodzików"><a asp-action="Statystyki" asp-route-sortBy="MmpCount" asp-route-desc='@NextDesc("MmpCount")'>MMP@(Arrow("MmpCount"))</a></th>
+                        <th title="Minisiatkówka"><a asp-action="Statystyki" asp-route-sortBy="MiniCount" asp-route-desc='@NextDesc("MiniCount")'>Mini@(Arrow("MiniCount"))</a></th>
+                        <th title="Turniej Towarzyski"><a asp-action="Statystyki" asp-route-sortBy="TowCount" asp-route-desc='@NextDesc("TowCount")'>Tow@(Arrow("TowCount"))</a></th>
+                        <th title="PALM - Liga Międzyuczelniana"><a asp-action="Statystyki" asp-route-sortBy="PalmCount" asp-route-desc='@NextDesc("PalmCount")'>PALM@(Arrow("PalmCount"))</a></th>
+                        <th title="Siatkówka plażowa"><a asp-action="Statystyki" asp-route-sortBy="PlazaCount" asp-route-desc='@NextDesc("PlazaCount")'>Plaża@(Arrow("PlazaCount"))</a></th>
+                        <th title="Sędzia, z którym najczęściej sędziowano i liczba wspólnych meczów"><a asp-action="Statystyki" asp-route-sortBy="DuetCount" asp-route-desc='@NextDesc("DuetCount")'>Duet@(Arrow("DuetCount"))</a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var lp = 1;
+                    }
+                    @foreach (var s in Model)
+                    {
+                        <tr>
+                            <td>@lp</td>
+                            <td class="sedzia-left">@s.Nazwisko</td>
+                            <td class="sedzia-left stats-sep-right">@s.Imie</td>
+                            <td class="stats-sep-right fw-bold">@s.MeczeCount</td>
+                            <td>@s.SiCount</td>
+                            <td>@s.SiiCount</td>
+                            <td>@s.SsCount</td>
+                            <td>@s.SgCount</td>
+                            <td class="stats-sep-right">@s.LCount</td>
+                            <td>@s.SzczebelCount</td>
+                            <td>@s.Liga3Count</td>
+                            <td>@s.JCount</td>
+                            <td>@s.KCount</td>
+                            <td>@s.MlCount</td>
+                            <td>@s.MmpCount</td>
+                            <td>@s.MiniCount</td>
+                            <td>@s.TowCount</td>
+                            <td>@s.PalmCount</td>
+                            <td>@s.PlazaCount</td>
+                            <td class="sedzia-left">@(s.DuetCount > 0 ? $"{s.DuetSedzia} ({s.DuetCount})" : "-")</td>
+                        </tr>
+                        lp++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="ShowAll" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Powrót
+    </a>
+</div>

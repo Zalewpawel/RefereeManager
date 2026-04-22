@@ -1,0 +1,87 @@
+@model IEnumerable<Sedziowanie.Models.SukcesWydzialu>
+
+@{
+    ViewData["Title"] = "Wydział Sędziowski - Sukcesy";
+    var success = TempData["Success"] as string;
+    var error = TempData["Error"] as string;
+    Func<string?, string> newlineToBr = s => System.Net.WebUtility.HtmlEncode(s ?? string.Empty).Replace("\r\n", "<br/>").Replace("\n", "<br/>");
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!string.IsNullOrEmpty(success))
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i>@success
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle me-2"></i>@error
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <div class="card mb-3">
+        <div class="card-header">Dodaj sukces</div>
+        <div class="card-body">
+            <form asp-action="AddSukces" method="post">
+                @Html.AntiForgeryToken()
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input name="zawody" class="form-control" placeholder="Zawody" required />
+                    </div>
+                    <div class="col-md-3">
+                        <input name="osiagniecie" class="form-control" placeholder="Osiągnięcie" required />
+                    </div>
+                    <div class="col-md-5">
+                        <textarea name="sklad" class="form-control" rows="3" placeholder="Skład (każda osoba w nowej linii)" required></textarea>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-success">Dodaj</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<div class="card shadow-sm">
+<table class="table table-hover table-bordered table-striped sukcesy-table mb-0 align-middle">
+    <thead class="thead-softgray">
+        <tr>
+            <th style="width: 220px;">Zawody</th>
+            <th>Osiągnięcie</th>
+            <th>Skład</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr><td colspan="3" class="text-muted text-center">Brak sukcesów.</td></tr>
+        }
+        else
+        {
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td style="max-width: 220px;">@s.Zawody</td>
+                    <td>@s.Osiagniecie</td>
+                    <td>@Html.Raw(newlineToBr(s.Sklad))</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+</div>
+
+<style>
+    .sukcesy-table th,
+    .sukcesy-table td {
+        width: 33.33%;
+    }
+</style>
